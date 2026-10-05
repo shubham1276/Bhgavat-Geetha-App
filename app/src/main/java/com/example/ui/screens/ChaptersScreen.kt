@@ -20,11 +20,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -56,6 +60,9 @@ fun ChaptersScreen(
     val allChapters = viewModel.getAllChapters()
     val readVerseIds by viewModel.readVerseIds.collectAsState()
     val completedChapterIds by viewModel.completedChapterIds.collectAsState()
+
+    val currentAudioChapterId by viewModel.chapterAudioPlayer.currentChapterId.collectAsState()
+    val isChapterAudioPlaying by viewModel.chapterAudioPlayer.isPlaying.collectAsState()
 
     var selectedFilter by remember { mutableStateOf("All") }
     val filterOptions = listOf("All", "In Progress", "Completed", "Karma Yoga", "Jnana Yoga", "Bhakti Yoga")
@@ -173,11 +180,15 @@ fun ChaptersScreen(
                 val readCount = viewModel.getChapterReadCount(chapter.id)
                 val totalChapterVerses = viewModel.getVersesForChapter(chapter.id).size
 
+                val isThisPlaying = currentAudioChapterId == chapter.id && isChapterAudioPlaying
+
                 ChapterCard(
                     chapter = chapter,
                     progress = progress,
                     readCount = readCount,
                     totalCoreVerses = totalChapterVerses,
+                    isAudioPlaying = isThisPlaying,
+                    onPlayAudio = { viewModel.toggleChapterAudio(chapter.id) },
                     onClick = { viewModel.openChapterDetail(chapter.id) }
                 )
             }
@@ -191,6 +202,8 @@ fun ChapterCard(
     progress: Float,
     readCount: Int,
     totalCoreVerses: Int,
+    isAudioPlaying: Boolean = false,
+    onPlayAudio: (() -> Unit)? = null,
     onClick: () -> Unit
 ) {
     val isCompleted = progress >= 1.0f
@@ -264,12 +277,30 @@ fun ChapterCard(
                     )
                 }
 
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "View Chapter",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp)
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (onPlayAudio != null) {
+                        IconButton(
+                            onClick = onPlayAudio,
+                            modifier = Modifier
+                                .size(36.dp)
+                                .testTag("play_chapter_audio_${chapter.id}")
+                        ) {
+                            Icon(
+                                imageVector = if (isAudioPlaying) Icons.Default.Pause else Icons.Default.GraphicEq,
+                                contentDescription = if (isAudioPlaying) "Pause Recitation" else "Play Sanskrit Recitation",
+                                tint = if (isAudioPlaying) SaffronPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                    }
+
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "View Chapter",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))

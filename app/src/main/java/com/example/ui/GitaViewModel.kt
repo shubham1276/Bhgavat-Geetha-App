@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.audio.ChapterMedia3AudioPlayer
 import com.example.audio.GitaAudioPlayer
 import com.example.data.GitaRepository
 import com.example.model.Bookmark
@@ -42,6 +43,7 @@ class GitaViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = GitaRepository(application)
     val audioPlayer = GitaAudioPlayer(application)
+    val chapterAudioPlayer = ChapterMedia3AudioPlayer(application)
 
     val settings: StateFlow<UserSettings> = repository.settings
     val bookmarks: StateFlow<List<Bookmark>> = repository.bookmarks
@@ -289,8 +291,49 @@ class GitaViewModel(application: Application) : AndroidViewModel(application) {
         context.startActivity(shareIntent)
     }
 
+    fun playChapterAudio(chapterId: Int) {
+        chapterAudioPlayer.playChapter(chapterId)
+    }
+
+    fun toggleChapterAudio(chapterId: Int) {
+        chapterAudioPlayer.togglePlayPause(chapterId)
+    }
+
+    fun pauseChapterAudio() {
+        chapterAudioPlayer.pause()
+    }
+
+    fun resumeChapterAudio() {
+        chapterAudioPlayer.resume()
+    }
+
+    fun seekChapterAudio(positionMs: Long) {
+        chapterAudioPlayer.seekTo(positionMs)
+    }
+
+    fun seekChapterAudioForward() {
+        chapterAudioPlayer.seekForward(10000L)
+    }
+
+    fun seekChapterAudioBack() {
+        chapterAudioPlayer.seekBack(10000L)
+    }
+
+    fun setChapterAudioSpeed(speed: Float) {
+        chapterAudioPlayer.setSpeed(speed)
+    }
+
+    fun toggleChapterAudioRepeat() {
+        chapterAudioPlayer.toggleRepeat()
+    }
+
+    fun stopChapterAudio() {
+        chapterAudioPlayer.stop()
+    }
+
     override fun onCleared() {
         super.onCleared()
         audioPlayer.release()
+        chapterAudioPlayer.release()
     }
 }

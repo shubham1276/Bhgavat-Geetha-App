@@ -2,6 +2,8 @@ package com.example
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import com.example.audio.ChapterMedia3AudioPlayer
+import com.example.audio.ChapterPlaybackStatus
 import com.example.data.GitaData
 import com.example.data.GitaRepository
 import org.junit.Assert.assertEquals
@@ -79,5 +81,25 @@ class ExampleRobolectricTest {
         // Toggle chapter complete off
         repository.markChapterCompleted(1, false)
         assertEquals(false, repository.isChapterCompleted(1))
+    }
+
+    @Test
+    fun `verify chapter media3 audio player initialization and state`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val chapterPlayer = ChapterMedia3AudioPlayer(context)
+
+        assertEquals(null, chapterPlayer.currentChapterId.value)
+        assertEquals(ChapterPlaybackStatus.IDLE, chapterPlayer.playbackStatus.value)
+        assertEquals(false, chapterPlayer.isPlaying.value)
+        assertEquals(1.0f, chapterPlayer.playbackSpeed.value, 0.01f)
+        assertEquals(false, chapterPlayer.isRepeatMode.value)
+
+        chapterPlayer.setSpeed(1.25f)
+        assertEquals(1.25f, chapterPlayer.playbackSpeed.value, 0.01f)
+
+        chapterPlayer.toggleRepeat()
+        assertTrue(chapterPlayer.isRepeatMode.value)
+
+        chapterPlayer.release()
     }
 }

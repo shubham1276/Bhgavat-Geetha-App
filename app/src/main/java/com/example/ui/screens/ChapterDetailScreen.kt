@@ -21,6 +21,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -46,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.GitaViewModel
+import com.example.ui.components.ChapterAudioPlayerCard
 import com.example.ui.components.ChapterProgressBar
 import com.example.ui.components.SacredOmIcon
 import com.example.ui.components.VerseItemCard
@@ -70,6 +74,10 @@ fun ChapterDetailScreen(
     val playingVerseId by viewModel.audioPlayer.currentVerseId.collectAsState()
     val readVerseIds by viewModel.readVerseIds.collectAsState()
     val completedChapterIds by viewModel.completedChapterIds.collectAsState()
+
+    val chapterAudioPlaying by viewModel.chapterAudioPlayer.isPlaying.collectAsState()
+    val currentAudioChapterId by viewModel.chapterAudioPlayer.currentChapterId.collectAsState()
+    val isThisChapterAudioActive = currentAudioChapterId == chapter?.id && chapterAudioPlaying
 
     if (chapter == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -114,6 +122,16 @@ fun ChapterDetailScreen(
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = { viewModel.toggleChapterAudio(chapter.id) },
+                        modifier = Modifier.testTag("chapter_audio_top_bar_button")
+                    ) {
+                        Icon(
+                            imageVector = if (isThisChapterAudioActive) Icons.Default.Pause else Icons.Default.GraphicEq,
+                            contentDescription = if (isThisChapterAudioActive) "Pause Sanskrit Recitation" else "Play Sanskrit Recitation",
+                            tint = if (isThisChapterAudioActive) SaffronPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                     IconButton(
                         onClick = { viewModel.toggleChapterCompleted(chapter.id) },
                         modifier = Modifier.testTag("chapter_complete_toggle_button")
@@ -213,6 +231,14 @@ fun ChapterDetailScreen(
                         }
                     }
                 }
+            }
+
+            // Android Media3 Sanskrit Recitation Player Component
+            item {
+                ChapterAudioPlayerCard(
+                    chapter = chapter,
+                    viewModel = viewModel
+                )
             }
 
             // Chapter Summary Card
