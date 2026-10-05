@@ -1,0 +1,6 @@
+{
+  "name": "Bhagavad Geetha Wisdom",
+  "description": "Spiritual companion featuring all 18 chapters of the Bhagavad Gita, Sanskrit verses, English translation & commentary, audio recitation, daily wisdom, and bookmarks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
